@@ -1,5 +1,5 @@
 import { Diamond } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AutoSizer } from "react-virtualized-auto-sizer";
 import { bisect_left } from "../utils/bisect";
 import type { LayoutRow, LayoutRowHeader } from "../utils/calculate-layout";
@@ -242,9 +242,8 @@ export default function DateTimeline({
                 }
 
                 const tickUi = (
-                  <>
+                  <Fragment key={tick.index}>
                     <div
-                      key={tick.index}
                       className="absolute right-2 flex items-center gap-2 -translate-y-1/2 z-10"
                       style={{ top: `${topHeight}px` }}
                     >
@@ -256,12 +255,11 @@ export default function DateTimeline({
                     </div>
                     {isNewYear ? (
                       <div
-                        key={`${tick.index}_bg`}
                         className="absolute right-2 flex items-center gap-2 -translate-y-1/2 z-0 bg-white/90 dark:bg-gray-900 rounded-full w-10 h-7"
                         style={{ top: `${topHeight}px` }}
                       ></div>
                     ) : null}
-                  </>
+                  </Fragment>
                 );
                 prevTick = tick;
                 prevTopHeight = topHeight;

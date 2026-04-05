@@ -1,15 +1,15 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useLogout, useSessionStatus } from "./api/hooks";
-import CategoryView from "./components/CategoryView";
 import Header from "./components/Header";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import LoginPage from "./components/LoginPage";
-import { RootAlbum } from "./RootAlbum";
+import { PageView } from "./components/PageView";
+import { StandardErrorMessage } from "./components/StandardErrorMessage";
+import { useRouter } from "./store/router";
 import { useAppStore } from "./store/useAppStore";
-import { parseRoute, type PiwigoRoute } from "./utils/query";
 
 function App() {
-  const [route, setRoute] = useState<PiwigoRoute | undefined>();
+  const { route } = useRouter();
 
   const {
     data: sessionStatus,
@@ -51,18 +51,6 @@ function App() {
     }
   }, [sessionStatus, sessionLoading, setAuth, clearAuth]);
 
-  useEffect(() => {
-    const handlePopState = () => {
-      const route = parseRoute(window.location.search);
-      setRoute(route);
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    handlePopState();
-
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
   // Apply dark mode
   useEffect(() => {
     if (colorScheme === "dark") {
@@ -99,20 +87,12 @@ function App() {
     view = <LoadingSpinner />;
   } else if (!isAuthenticated) {
     if (sessionError && sessionError.status === 502) {
-      view = (
-        <div className="flex flex-col items-center">
-          <div className="max-w-7xl p-10">
-            Trouble connecting to the server, please try again.
-          </div>
-        </div>
-      );
+      view = <StandardErrorMessage error={sessionError} />;
     } else {
       view = <LoginPage />;
     }
-  } else if (route?.category) {
-    view = <CategoryView categoryId={route?.category} />;
   } else {
-    view = <RootAlbum />;
+    view = <PageView route={route} />;
   }
 
   return (

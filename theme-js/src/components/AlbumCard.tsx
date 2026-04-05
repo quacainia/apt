@@ -1,6 +1,7 @@
 import { Folder } from "lucide-react";
 import { type Category } from "../api/types";
 import { formatMonth } from "../utils/format";
+import { Link } from "./Link";
 import PhotoGridItemById from "./PhotoGridItemById";
 
 interface AlbumCardProps {
@@ -9,8 +10,8 @@ interface AlbumCardProps {
 
 export default function AlbumCard({ album }: AlbumCardProps) {
   return (
-    <a
-      href={`${window.location.origin}${window.location.pathname}?/category/${album.id}`}
+    <Link
+      to={{ type: "category", id: album.id.toString() }}
       className="group relative aspect-square rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
     >
       {/* Representative image if available */}
@@ -61,6 +62,6 @@ export default function AlbumCard({ album }: AlbumCardProps) {
           </div>
         )}
       </div>
-    </a>
+    </Link>
   );
 }

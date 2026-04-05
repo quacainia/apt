@@ -1,5 +1,6 @@
 import { Moon, Sun, SunMoon } from "lucide-react";
 import { useAppStore, type AppState } from "../store/useAppStore";
+import { Link } from "./Link";
 
 interface HeaderProps {
   username?: string | null;
@@ -15,14 +16,16 @@ export default function Header({ username, onLogout }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="flex flex-row gap-2 text-xl font-light text-gray-900 dark:text-white items-center">
-              <img
-                src={`${window.viteDevServer}public/piwigo.flat.svg`}
-                className="h-8"
-                alt="📸"
-              />
-              {window.piwigoData?.banner ?? "Piwigo"}
-            </h1>
+            <Link to={{ type: "home" }}>
+              <h1 className="flex flex-row gap-2 text-xl font-light text-gray-900 dark:text-white items-center">
+                <img
+                  src={`${window.viteDevServer}public/piwigo.flat.svg`}
+                  className="h-8"
+                  alt="📸"
+                />
+                {window.piwigoData?.banner ?? "Piwigo"}
+              </h1>
+            </Link>
           </div>
 
           <div className="flex items-center gap-4">

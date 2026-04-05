@@ -1,8 +1,10 @@
+import { Ellipsis, Home } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useCategoriesList } from "../api/hooks";
 import type { LayoutRow, LayoutRowHeader } from "../utils/calculate-layout";
 import AlbumGrid from "./AlbumGrid";
 import DateTimeline, { type DateTimelineProps } from "./DateTimeline";
+import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
 import PhotoGridContainer from "./PhotoGridContainer";
 import { StandardErrorMessage } from "./StandardErrorMessage";
@@ -10,9 +12,10 @@ import { StandardErrorMessage } from "./StandardErrorMessage";
 export default function CategoryView({
   categoryId: categoryId,
 }: {
-  categoryId: string | null | undefined;
+  categoryId: number | string | null | undefined;
 }) {
-  const categoryIdNumber = parseInt(categoryId ?? "");
+  const categoryIdNumber =
+    typeof categoryId === "number" ? categoryId : parseInt(categoryId ?? "");
   const [layoutGroups, setLayoutGroups] = useState<LayoutRowHeader[]>([]);
   const [layoutRows, setLayoutRows] = useState<LayoutRow[]>([]);
   const [scrollOffset, setScrollOffset] = useState<number>(0);
@@ -38,10 +41,12 @@ export default function CategoryView({
         : (categoryData.result?.categories?.slice(1) ?? [])
       : [];
 
-  const handleBackToAlbums = () => {
-    // todo: fix breadcrumbs
-    // navigateTo({ view: "albums", album: null });
-  };
+  const { data: uppercatData } = useCategoriesList({
+    cat_id: category?.id_uppercat ? category.id_uppercat : undefined,
+    limit: 1,
+  });
+  const uppercat =
+    uppercatData?.stat === "ok" ? uppercatData.result?.categories?.at(0) : null;
 
   // This NEEDS to be memoized so it doesn't cause rerender loops
   const handleTimelineContext = useCallback(
@@ -85,17 +90,41 @@ export default function CategoryView({
     <div className="relative w-full flex-grow overflow-hidden">
       <div className="size-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden">
         {categoryIdNumber !== 0 && (
-          <div className="mt-2">
-            <button
-              onClick={handleBackToAlbums}
+          <div className="flex flex-row gap-2 md:gap-4 mt-2 items-center">
+            <Link
+              // @todo fix breadcrumbs
+              to={{ type: "home" }}
               className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium"
             >
-              ← Back to Albums
-            </button>
+              <Home />
+            </Link>
+            <div>/</div>
+            {category?.id_uppercat && (
+              <>
+                {!uppercat ||
+                  (uppercat.id_uppercat && (
+                    <>
+                      <div>
+                        <Ellipsis />
+                      </div>
+                      <div>/</div>
+                    </>
+                  ))}
+                <Link
+                  // @todo fix breadcrumbs
+                  to={{ type: "category", id: category.id_uppercat }}
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium text-lg"
+                >
+                  {uppercat?.name || <Ellipsis />}
+                </Link>
+                <div>/</div>
+              </>
+            )}
+            <div className="text-lg">{category?.name}</div>
           </div>
         )}
 
-        <div className="flex flex-row flex-grow relative overflow-hidden py-6">
+        <div className="flex flex-row flex-grow relative overflow-hidden py-2">
           {showSubCategories && <AlbumGrid categories={subCategories} />}
           {showImages && (
             <PhotoGridContainer
