@@ -1,35 +1,24 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { useCategoriesImages } from "../api/hooks";
-import { useAppStore, type AppState } from "../store/useAppStore";
-import { parseQuery } from "../utils/query";
+import type { Category } from "../api/types";
 import type { DateTimelineProps } from "./DateTimeline";
 import PhotoGridVirtual from "./PhotoGridVirtual";
 
 export default function PhotoGridContainer({
+  categoryId,
   onTimelineContext,
 }: {
+  categoryId: Category["id"] | undefined;
   onTimelineContext: (newCtx: Partial<DateTimelineProps>) => void;
 }) {
-  const currentAlbumId = useAppStore((s: AppState) => s.currentAlbumId);
   const [percentProgress, setPercentProgress] = useState<number>(0);
-  const [albumId, setAlbumId] = useState<number | null>(currentAlbumId);
-
-  // Update albumId from URL if needed
-  useEffect(() => {
-    const query = parseQuery(window.location.search);
-    if (query.album) {
-      const id = parseInt(query.album);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAlbumId(id);
-    }
-  }, []);
 
   const {
     data: imagesData,
     isLoading: imagesLoading,
     error: imagesError,
   } = useCategoriesImages(
-    albumId != undefined ? albumId : undefined,
+    categoryId,
     {
       all: true,
       order: "date_available",

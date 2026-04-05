@@ -186,6 +186,9 @@ class PiwigoAPI {
     limit?: number;
   }): Promise<Types.CategoriesListResponse> {
     console.log("getCategoriesList");
+    if (params?.cat_id === undefined) {
+      return { stat: "fail" };
+    }
     const response = await this.client.get("/ws.php", {
       params: {
         method: "pwg.categories.getList",

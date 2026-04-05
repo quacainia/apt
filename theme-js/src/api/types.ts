@@ -85,7 +85,8 @@ export type SessionStatus = ApiResponse<{
 }>;
 
 export interface ApiResponse<T> {
-  stat: "ok" | "fail";
+  // "noop" is a local response so we can tell that no API query was actually called, but the function returned.
+  stat: "ok" | "fail" | "noop";
   result?: T;
   error?: {
     code: number;

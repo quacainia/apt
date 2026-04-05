@@ -5,13 +5,12 @@ import PhotoGridItemById from "./PhotoGridItemById";
 
 interface AlbumCardProps {
   album: Category;
-  onClick: () => void;
 }
 
-export default function AlbumCard({ album, onClick }: AlbumCardProps) {
+export default function AlbumCard({ album }: AlbumCardProps) {
   return (
-    <button
-      onClick={onClick}
+    <a
+      href={`${window.location.origin}${window.location.pathname}?/category/${album.id}`}
       className="group relative aspect-square rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
     >
       {/* Representative image if available */}
@@ -62,6 +61,6 @@ export default function AlbumCard({ album, onClick }: AlbumCardProps) {
           </div>
         )}
       </div>
-    </button>
+    </a>
   );
 }

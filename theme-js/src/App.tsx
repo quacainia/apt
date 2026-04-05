@@ -1,24 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useLogout, useSessionStatus } from "./api/hooks";
-import AlbumsView from "./components/AlbumsView";
+import CategoryView from "./components/CategoryView";
 import Header from "./components/Header";
+import { LoadingSpinner } from "./components/LoadingSpinner";
 import LoginPage from "./components/LoginPage";
-import PhotosView from "./components/PhotosView";
+import { RootAlbum } from "./RootAlbum";
 import { useAppStore } from "./store/useAppStore";
-import { parseQuery } from "./utils/query";
+import { parseRoute, type PiwigoRoute } from "./utils/query";
 
 function App() {
-  const { data: sessionStatus, isLoading: sessionLoading } = useSessionStatus();
+  const [route, setRoute] = useState<PiwigoRoute | undefined>();
 
   const {
-    isAuthenticated,
-    currentView,
-    setAuth,
-    clearAuth,
-    setCurrentView,
-    colorScheme,
-    username,
-  } = useAppStore();
+    data: sessionStatus,
+    isLoading: sessionLoading,
+    error: sessionError,
+  } = useSessionStatus();
+
+  const { isAuthenticated, clearAuth, colorScheme, setAuth, username } =
+    useAppStore();
 
   const logoutMutation = useLogout();
 
@@ -51,21 +51,17 @@ function App() {
     }
   }, [sessionStatus, sessionLoading, setAuth, clearAuth]);
 
-  // Handle query string changes
   useEffect(() => {
     const handlePopState = () => {
-      const query = parseQuery(window.location.search);
-      const view = query.view || "albums";
-      if (isAuthenticated) {
-        setCurrentView(view);
-      }
+      const route = parseRoute(window.location.search);
+      setRoute(route);
     };
 
     window.addEventListener("popstate", handlePopState);
     handlePopState();
 
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [isAuthenticated, setCurrentView]);
+  }, []);
 
   // Apply dark mode
   useEffect(() => {
@@ -98,24 +94,32 @@ function App() {
     }
   }, [colorScheme]);
 
+  let view: ReactNode;
   if (sessionLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-50"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <LoginPage />;
+    view = <LoadingSpinner />;
+  } else if (!isAuthenticated) {
+    if (sessionError && sessionError.status === 502) {
+      view = (
+        <div className="flex flex-col items-center">
+          <div className="max-w-7xl p-10">
+            Trouble connecting to the server, please try again.
+          </div>
+        </div>
+      );
+    } else {
+      view = <LoginPage />;
+    }
+  } else if (route?.category) {
+    view = <CategoryView categoryId={route?.category} />;
+  } else {
+    view = <RootAlbum />;
   }
 
   return (
     <div className="size-full bg-white dark:bg-gray-900">
       <div className="flex flex-col h-full bg-white dark:bg-gray-900 overflow-hidden items-stretch">
         <Header username={username} onLogout={handleLogout} />
-        {currentView === "albums" && <AlbumsView />}
-        {currentView === "photos" && <PhotosView />}
+        {view}
       </div>
     </div>
   );

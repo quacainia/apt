@@ -11,7 +11,7 @@ export interface DateTimelineProps {
   layoutRows: LayoutRow[];
   scrollOffset: number;
   setScroll: (pct: number) => void;
-  totalHeight: number;
+  totalHeight: number | undefined;
 }
 
 const TIMELINE_TOP_PADDING = 10;
@@ -158,6 +158,10 @@ export default function DateTimeline({
       awaitingUpdate.current = false;
     }
   }, [scrollOffset]);
+
+  if (!totalHeight) {
+    return null;
+  }
 
   return (
     <div

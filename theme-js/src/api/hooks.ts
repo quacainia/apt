@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import piwigoAPI from "./piwigo";
 import * as Types from "./types";
 
@@ -20,7 +21,7 @@ const QUERY_KEYS = {
 
 // Session Hooks
 export function useSessionStatus() {
-  return useQuery({
+  return useQuery<Types.SessionStatus, AxiosError>({
     queryKey: QUERY_KEYS.sessionStatus,
     queryFn: async () => {
       const response = await piwigoAPI.getStatus();
@@ -51,7 +52,7 @@ export function useLogout() {
 export function useCategoriesList(
   params?: Parameters<typeof piwigoAPI.getCategoriesList>[0],
 ) {
-  return useQuery({
+  return useQuery<Types.CategoriesListResponse, AxiosError>({
     queryKey: QUERY_KEYS.categoriesList(params),
     queryFn: () => piwigoAPI.getCategoriesList(params),
     staleTime: 10 * 60 * 1000, // 10 minutes

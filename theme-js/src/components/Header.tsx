@@ -19,7 +19,7 @@ export default function Header({ username, onLogout }: HeaderProps) {
               <img
                 src={`${window.viteDevServer}public/piwigo.flat.svg`}
                 className="h-8"
-                alt="Description"
+                alt="📸"
               />
               {window.piwigoData?.banner ?? "Piwigo"}
             </h1>

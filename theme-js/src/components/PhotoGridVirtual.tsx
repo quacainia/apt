@@ -71,7 +71,7 @@ export default function PhotoGridVirtual({
   );
 
   return (
-    <div className="flex gap-2 flex-grow overflow-hidden">
+    <div className="flex gap-2 h-full flex-grow overflow-hidden">
       <AutoSizer
         className="flex flex-row max-w-full"
         renderProp={({
