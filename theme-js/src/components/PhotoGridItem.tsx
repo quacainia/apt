@@ -4,7 +4,7 @@ import type { Image, ImageDerivatives } from "../api/types";
 import { cn } from "../utils/cn";
 import { shouldSwapDimensions } from "../utils/should-swap-dimensions";
 
-type PhotoGridItemProps = {
+export type PhotoGridItemProps = {
   image: Image;
   isSelected?: boolean;
   onSelect?: () => void;

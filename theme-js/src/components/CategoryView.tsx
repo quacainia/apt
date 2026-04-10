@@ -6,6 +6,7 @@ import AlbumGrid from "./AlbumGrid";
 import DateTimeline, { type DateTimelineProps } from "./DateTimeline";
 import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { MixedContentCategory } from "./MixedContentCategory";
 import PhotoGridContainer from "./PhotoGridContainer";
 import { StandardErrorMessage } from "./StandardErrorMessage";
 
@@ -88,9 +89,9 @@ export default function CategoryView({
 
   return (
     <div className="relative w-full flex-grow overflow-hidden">
-      <div className="size-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden">
+      <div className="size-full mx-auto flex flex-col overflow-hidden items-center">
         {categoryIdNumber !== 0 && (
-          <div className="flex flex-row gap-2 md:gap-4 mt-2 items-center">
+          <div className="flex flex-row max-w-7xl px-4 sm:px-6 lg:px-8 gap-2 md:gap-4 mt-2 items-center w-full">
             <Link
               // @todo fix breadcrumbs
               to={{ type: "home" }}
@@ -124,7 +125,7 @@ export default function CategoryView({
           </div>
         )}
 
-        <div className="flex flex-row flex-grow relative overflow-hidden py-2">
+        <div className="flex flex-row flex-grow relative overflow-hidden pt-2 w-full">
           {showSubCategories && <AlbumGrid categories={subCategories} />}
           {showImages && (
             <PhotoGridContainer
@@ -133,17 +134,11 @@ export default function CategoryView({
             />
           )}
           {!showSubCategories && !showImages && (
-            <div className="flex flex-row gap-6 flex-grow h-full">
-              <div className="flex-1 relative h-full overflow-hidden">
-                <PhotoGridContainer
-                  onTimelineContext={handleTimelineContext}
-                  categoryId={category!.id}
-                />
-              </div>
-              <div className="flex-1 h-full">
-                <AlbumGrid categories={subCategories} />
-              </div>
-            </div>
+            <MixedContentCategory
+              categoryId={category!.id}
+              subCategories={subCategories}
+              handleTimelineContext={handleTimelineContext}
+            />
           )}
         </div>
       </div>

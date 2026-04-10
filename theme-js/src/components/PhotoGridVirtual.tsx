@@ -20,7 +20,8 @@ interface PhotoGridVirtualProps {
   onTimelineContext: (newCtx: Partial<DateTimelineProps>) => void;
 }
 
-const PHOTO_GRID_MARGIN = 6;
+// @configurable
+export const PHOTO_GRID_MARGIN = 6;
 
 export default function PhotoGridVirtual({
   images,
