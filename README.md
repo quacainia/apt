@@ -7,6 +7,7 @@ Apt is a [Piwigo](https://piwigo.org/) theme made to feel more clean and respons
 Apt is currently in its demo / alpha phase and cannot cover the full range of needs for a Piwigo theme, so I would discourage using it unless you are actively in development.
 
 - `2026-03-28`: In this initial version, one can view top level albums and a list of the images directly within those top level albums on a timeline.
+- `2026-04-09`: Categories are navigable, but there is still some UI to iron out.
 
 # Goals
 
