@@ -1,7 +1,7 @@
 import { useCategoriesList } from "../api/hooks";
 import type { Category } from "../api/types";
+import { CategoryContent } from "./CategoryContent";
 import { LoadingSpinner } from "./LoadingSpinner";
-import { MixedContentCategory } from "./MixedContentCategory";
 import { StandardErrorMessage } from "./StandardErrorMessage";
 
 export default function CategoryView({
@@ -52,10 +52,7 @@ export default function CategoryView({
     <div className="relative w-full flex-grow overflow-hidden">
       <div className="size-full mx-auto flex flex-col overflow-hidden items-center">
         {category ? (
-          <MixedContentCategory
-            category={category}
-            subCategories={subCategories}
-          />
+          <CategoryContent category={category} subCategories={subCategories} />
         ) : (
           // @todo: this _shouldn't_ happen, but it would be good to make sure it won't
           <div>Error finding category.</div>

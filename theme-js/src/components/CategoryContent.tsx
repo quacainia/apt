@@ -37,7 +37,7 @@ import {
   type PhotoJustifiedRowProps,
 } from "./PhotoJustifiedRow";
 
-export const MixedContentCategory = ({
+export const CategoryContent = ({
   category,
   subCategories,
 }: {
