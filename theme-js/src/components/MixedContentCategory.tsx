@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useCategoriesImages } from "../api/hooks";
-import type { Category } from "../api/types";
+import type { Category, Image } from "../api/types";
 import {
   virtualizeCategoryList,
   type CategoryGridData,
@@ -10,6 +10,7 @@ import {
   virtualizeImagesList,
   type ImageLayoutRow,
 } from "../utils/virtualize-images-list";
+import { virtualizedLoadingImages } from "../utils/virtualized-loading-images";
 import CategoriesHeader, {
   CATEGORY_HEADER_HEIGHT,
   type CategoryHeaderProps,
@@ -75,8 +76,9 @@ export const MixedContentCategory = ({
   );
 
   // Ease of use so we don't have to continuously check if result is 'ok'
-  const images = useMemo(
-    () => (imagesData?.stat === "ok" ? (imagesData?.result?.images ?? []) : []),
+  const images: Image[] | null = useMemo(
+    () =>
+      imagesData?.stat === "ok" ? (imagesData?.result?.images ?? null) : null,
     [imagesData],
   );
 
@@ -140,6 +142,15 @@ export const MixedContentCategory = ({
     return categoriesConfig;
   }, [subCategories, isExpanded, virtualizerWidth]);
 
+  const loadingRandomOrder = useMemo(() => {
+    return (
+      Array(13)
+        .fill(1)
+        // eslint-disable-next-line react-hooks/purity
+        .map(() => (Math.random() > 0.5 ? 0.8 : 1.25))
+    );
+  }, []);
+
   /**
    * Generate the sections of the page for each month of the images.
    *
@@ -147,6 +158,17 @@ export const MixedContentCategory = ({
    *         sometimes it'd be better to search for clusters in a day.
    */
   const imagesViewGroups = useMemo(() => {
+    if (images == null) {
+      if (imagesLoading) {
+        return virtualizedLoadingImages(
+          virtualizerWidth,
+          loadingRandomOrder,
+        )(percentProgress);
+      } else {
+        return [];
+      }
+    }
+
     // Break into monthly groups
     const groups = virtualizeImagesList(images, virtualizerWidth);
 
@@ -184,7 +206,13 @@ export const MixedContentCategory = ({
         id: `${index}-${group.header}`,
       }),
     );
-  }, [images, virtualizerWidth]);
+  }, [
+    images,
+    imagesLoading,
+    loadingRandomOrder,
+    percentProgress,
+    virtualizerWidth,
+  ]);
 
   // Combine albums and images
   const groups: VirtualViewGroupConfig[] = useMemo(

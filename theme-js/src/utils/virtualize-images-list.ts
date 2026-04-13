@@ -4,9 +4,9 @@ import { PHOTO_GRID_MARGIN } from "../components/PhotoGridVirtual";
 import { formatMonth, getMonthKey } from "./format";
 import { shouldSwapDimensions } from "./should-swap-dimensions";
 
-type JustifiedLayoutOptions = Parameters<typeof justifiedLayout>[1];
-type JustifiedLayoutResult = ReturnType<typeof justifiedLayout>;
-type LayoutBox = JustifiedLayoutResult["boxes"][number];
+export type JustifiedLayoutOptions = Parameters<typeof justifiedLayout>[1];
+export type JustifiedLayoutResult = ReturnType<typeof justifiedLayout>;
+export type LayoutBox = JustifiedLayoutResult["boxes"][number];
 
 export type ImageLayout = {
   image: Image;
