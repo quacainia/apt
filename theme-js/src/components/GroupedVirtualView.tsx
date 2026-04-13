@@ -85,8 +85,6 @@ export type OnScrollUpdateProps = {
   viewportHeight: number;
   // Height of the content within the scrolling view
   totalHeight: number;
-  // Group which is currently at the top of the view
-  activeGroupIndex: number;
 };
 
 export interface GroupedVirtualViewHandle {
@@ -217,20 +215,44 @@ export const GroupedVirtualView = forwardRef<
         return flatItems[index].height;
       },
       overscan: 5,
-      onChange: (instance) => {
-        const firstItem = instance.getVirtualItems()[0];
-        const activeGroupIndex = firstItem
-          ? flatItems[firstItem.index].groupIndex
-          : 0;
+      // /**
+      //  * onChange isn't as prompt as manually listening to 'scroll', so it
+      //  * creates jitter on the labeled scrollbar
+      //  */
+      // onChange: (instance) => {
+      //   // The current active group in the virtual view.
+      //   const firstItem = instance.getVirtualItems()[0];
+      //   const activeGroupIndex = firstItem
+      //     ? flatItems[firstItem.index].groupIndex
+      //     : 0;
 
-        onScrollUpdate?.({
-          scrollOffset: instance.scrollOffset,
-          viewportHeight: parentRef.current?.offsetHeight || 0,
-          totalHeight: instance.getTotalSize(),
-          activeGroupIndex,
-        });
-      },
+      //   onScrollUpdate?.({
+      //     scrollOffset: instance.scrollOffset,
+      //     viewportHeight: parentRef.current?.offsetHeight || 0,
+      //     totalHeight: instance.getTotalSize(),
+      //     activeGroupIndex,
+      //   });
+      // },
     });
+
+    useEffect(() => {
+      const div = parentRef.current;
+      if (!div) return;
+
+      const handleScroll = () => {
+        onScrollUpdate?.({
+          scrollOffset: div.scrollTop,
+          viewportHeight: parentRef.current?.offsetHeight || 0,
+          totalHeight: totalHeight,
+        });
+      };
+
+      div.addEventListener("scroll", handleScroll);
+
+      return () => {
+        div.removeEventListener("scroll", handleScroll);
+      };
+    }, [onScrollUpdate, totalHeight]);
 
     useEffect(() => rowVirtualizer.measure(), [groups, rowVirtualizer]);
 

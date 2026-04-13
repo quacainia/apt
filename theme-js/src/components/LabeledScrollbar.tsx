@@ -15,6 +15,7 @@ export interface LabeledScrollbarProps<
   groups: VirtualViewGroupConfig<THeader, TRowProps, TRowData>[];
   scrollOffset: number;
   onChangeScrollPercent: (pct: number) => void;
+  viewportHeight: number;
 }
 
 type RowByPct<
@@ -54,6 +55,7 @@ export default function LabeledScrollbar<
   groups,
   scrollOffset,
   onChangeScrollPercent,
+  viewportHeight,
 }: LabeledScrollbarProps<THeader, TRowProps, TRowData>) {
   const awaitingUpdate = useRef<boolean>(false);
   const [mousePos, setMousePos] = useState<number | null>(null);
@@ -83,11 +85,12 @@ export default function LabeledScrollbar<
       currentOffset += group.header.height;
       result.push({
         type: "header",
-        pct: currentOffset,
+        pct: currentOffset / totalHeight,
         group,
       });
 
       group.rows.data.forEach((row, idx) => {
+        currentOffset += group.rows.getRowHeight(row, idx);
         result.push({
           type: "row",
           pct: currentOffset / totalHeight,
@@ -95,7 +98,6 @@ export default function LabeledScrollbar<
           index: idx,
           data: row,
         });
-        currentOffset += group.rows.getRowHeight(row, idx);
       });
     });
     return result;
@@ -197,7 +199,8 @@ export default function LabeledScrollbar<
           const trackHeight =
             height - SCROLLBAR_TOP_PADDING - SCROLLBAR_BOTTOM_PADDING;
           const scrollMarkerTop =
-            (scrollOffset / totalHeight) * trackHeight + SCROLLBAR_TOP_PADDING;
+            (scrollOffset / (totalHeight - viewportHeight)) * trackHeight +
+            SCROLLBAR_TOP_PADDING;
 
           return (
             <>
@@ -218,8 +221,8 @@ export default function LabeledScrollbar<
                     style={{ top: `${mousePos}px` }}
                   />
                   <div
-                    className="absolute right-10 -translate-y-1/2 whitespace-nowrap bg-gray-800 text-white px-3 py-1.5 rounded shadow-lg text-sm"
-                    style={{ top: `${mousePos}px` }}
+                    className="absolute right-10 -translate-y-1/2 whitespace-nowrap bg-gray-800 text-white px-3 py-1.5 rounded shadow-lg text-sm z-30"
+                    style={{ top: `${Math.max(16, mousePos)}px` }}
                   >
                     {hoverLabel}
                   </div>

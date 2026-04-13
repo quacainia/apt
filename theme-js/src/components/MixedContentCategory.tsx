@@ -229,6 +229,7 @@ export const MixedContentCategory = ({
         <LabeledScrollbar
           groups={groups}
           scrollOffset={scrollValues?.scrollOffset ?? 0}
+          viewportHeight={scrollValues?.viewportHeight ?? 0}
           onChangeScrollPercent={(newScrollPercent) => {
             groupedVirtualViewRef.current?.setScrollPercent(newScrollPercent);
           }}
