@@ -42,7 +42,7 @@ export const virtualizeImagesList = (images: Image[], width: number) => {
     );
   }
 
-  const months: string[] = Object.keys(groupedByMonth).sort().reverse();
+  const months: string[] = Object.keys(groupedByMonth).sort();
 
   const groupsSortedByMonth = months.map((m) => {
     const images = groupedByMonth[m];
@@ -93,8 +93,20 @@ export const virtualizeImagesList = (images: Image[], width: number) => {
       year: parseInt(m.split("-").at(0) ?? "0"),
       month: parseInt(m.split("-").at(1) ?? "0"),
       rows,
+      isNewYear: false,
     };
   });
+
+  for (const idx in groupsSortedByMonth) {
+    const prev = groupsSortedByMonth.at(parseInt(idx) - 1);
+    groupsSortedByMonth[idx] = {
+      ...groupsSortedByMonth[idx],
+      isNewYear:
+        prev === undefined || prev.year !== groupsSortedByMonth[idx].year,
+    };
+  }
+
+  groupsSortedByMonth.reverse();
 
   return groupsSortedByMonth;
 };

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useCategoriesImages } from "../api/hooks";
 import type { Category } from "../api/types";
 import {
@@ -18,9 +18,12 @@ import CategoriesRow, { type CategoryRowProps } from "./CategoriesRow";
 import type { DateTimelineProps } from "./DateTimeline";
 import {
   GroupedVirtualView,
+  type GroupedVirtualViewHandle,
+  type OnScrollUpdateProps,
   type RowWithIndex,
   type VirtualViewGroupConfig,
 } from "./GroupedVirtualView";
+import LabeledScrollbar from "./LabeledScrollbar";
 import {
   PHOTO_GROUP_HEADER_HEIGHT,
   PhotoGroupHeader,
@@ -40,7 +43,11 @@ export const MixedContentCategory = ({
   handleTimelineContext: (newCtx: Partial<DateTimelineProps>) => void;
   subCategories: Category[];
 }) => {
+  const groupedVirtualViewRef = useRef<GroupedVirtualViewHandle>(null);
   const [percentProgress, setPercentProgress] = useState<number>(0);
+  const [scrollValues, setScrollValues] = useState<
+    OnScrollUpdateProps | undefined
+  >(undefined);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [virtualizerWidth, setVirtualizerWidth] = useState<number>(0);
 
@@ -108,12 +115,14 @@ export const MixedContentCategory = ({
       id: "categories",
       header: {
         height: CATEGORY_HEADER_HEIGHT,
-        component: CategoriesHeader,
+        Component: CategoriesHeader,
+        label: { value: "Albums", isPrimary: true },
         props: headerProps,
         sticky: true,
       },
       rows: {
         data: categoryGridData.rows,
+        getTooltip: () => "Albums",
         getRowHeight: (rowData) => {
           return rowData.height;
         },
@@ -125,7 +134,7 @@ export const MixedContentCategory = ({
             onToggleExpanded: setIsExpanded,
           };
         },
-        component: CategoriesRow,
+        Component: CategoriesRow,
       },
     };
     return categoriesConfig;
@@ -156,17 +165,19 @@ export const MixedContentCategory = ({
         // rows: group.images,
         rows: {
           data: group.rows,
+          getTooltip: ({ group }) => group.header.label.value,
           getProps: (rowWithIndex: RowWithIndex<ImageLayoutRow>) => {
             return { row: rowWithIndex.data };
           },
           getRowHeight: (imageLayout: ImageLayoutRow) =>
             imageLayout.height + imageLayout.boxSpacing,
-          component: PhotoJustifiedRow,
+          Component: PhotoJustifiedRow,
         },
         header: {
           height: PHOTO_GROUP_HEADER_HEIGHT,
-          component: PhotoGroupHeader,
+          Component: PhotoGroupHeader,
           props: { label: group.header },
+          label: { value: group.header, isPrimary: group.isNewYear },
           // @configurable
           sticky: true,
         },
@@ -185,12 +196,26 @@ export const MixedContentCategory = ({
   );
 
   return (
-    <GroupedVirtualView
-      groups={groups}
-      enabled={virtualizerWidth > 0}
-      onWidthUpdate={(width) => {
-        setVirtualizerWidth(width);
-      }}
-    />
+    <div className="size-full overflow-hidden relative">
+      <div className="absolute right-0 top-0 h-full z-100">
+        <LabeledScrollbar
+          groups={groups}
+          scrollOffset={scrollValues?.scrollOffset ?? 0}
+          onChangeScrollPercent={(newScrollPercent) => {
+            groupedVirtualViewRef.current?.setScrollPercent(newScrollPercent);
+          }}
+        />
+      </div>
+      <GroupedVirtualView
+        ref={groupedVirtualViewRef}
+        className="relative z-0 no-scrollbar"
+        groups={groups}
+        enabled={virtualizerWidth > 0}
+        onWidthUpdate={(width) => {
+          setVirtualizerWidth(width);
+        }}
+        onScrollUpdate={(values) => setScrollValues(values)}
+      />
+    </div>
   );
 };
