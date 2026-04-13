@@ -215,24 +215,26 @@ export const GroupedVirtualView = forwardRef<
         return flatItems[index].height;
       },
       overscan: 5,
-      // /**
-      //  * onChange isn't as prompt as manually listening to 'scroll', so it
-      //  * creates jitter on the labeled scrollbar
-      //  */
-      // onChange: (instance) => {
-      //   // The current active group in the virtual view.
-      //   const firstItem = instance.getVirtualItems()[0];
-      //   const activeGroupIndex = firstItem
-      //     ? flatItems[firstItem.index].groupIndex
-      //     : 0;
+      /**
+       * onChange isn't as prompt as manually listening to 'scroll', so it
+       * creates jitter on the labeled scrollbar.
+       *
+       * We still want to call once to get the viewportHeight on render
+       */
+      onChange: (instance) => {
+        // // The current active group in the virtual view.
+        // const firstItem = instance.getVirtualItems()[0];
+        // const activeGroupIndex = firstItem
+        //   ? flatItems[firstItem.index].groupIndex
+        //   : 0;
 
-      //   onScrollUpdate?.({
-      //     scrollOffset: instance.scrollOffset,
-      //     viewportHeight: parentRef.current?.offsetHeight || 0,
-      //     totalHeight: instance.getTotalSize(),
-      //     activeGroupIndex,
-      //   });
-      // },
+        onScrollUpdate?.({
+          scrollOffset: instance.scrollOffset,
+          viewportHeight: parentRef.current?.offsetHeight || 0,
+          totalHeight: instance.getTotalSize(),
+          // activeGroupIndex,
+        });
+      },
     });
 
     useEffect(() => {

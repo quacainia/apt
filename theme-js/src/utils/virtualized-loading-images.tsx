@@ -1,8 +1,7 @@
 import justifiedLayout from "justified-layout";
-import { useEffect } from "react";
 import type { VirtualViewGroupConfig } from "../components/GroupedVirtualView";
-import { PHOTO_GRID_MARGIN } from "../components/PhotoGridVirtual";
 import { PHOTO_GROUP_HEADER_HEIGHT } from "../components/PhotoGroupHeader";
+import { PHOTO_GRID_MARGIN } from "../utils/constants";
 import type {
   JustifiedLayoutOptions,
   JustifiedLayoutResult,
@@ -52,12 +51,14 @@ export const virtualizedLoadingImages = (
   ];
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 const HeaderComponent = () => (
   <div className="flex items-center justify-center p-2">
     <div className="h-9 w-48 bg-gray-200 dark:bg-gray-800 rounded-full animate-pulse"></div>
   </div>
 );
 
+// eslint-disable-next-line react-refresh/only-export-components
 const ImagesComponent = ({
   height,
   layout,
@@ -67,9 +68,6 @@ const ImagesComponent = ({
   layout: JustifiedLayoutResult;
   percentProgress: number;
 }) => {
-  useEffect(() => {
-    console.log("ImagesComponent");
-  }, []);
   return (
     <div
       className="relative"
@@ -98,8 +96,9 @@ const ImagesComponent = ({
           </div>
         </div>
       </div>
-      {layout.boxes.map((box) => (
+      {layout.boxes.map((box, i) => (
         <div
+          key={i}
           className="absolute bg-gray-200 dark:bg-gray-800 animate-pulse"
           style={{
             height: box.height,

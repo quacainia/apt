@@ -1,6 +1,6 @@
 import justifiedLayout from "justified-layout";
 import type { Image } from "../api/types";
-import { PHOTO_GRID_MARGIN } from "../components/PhotoGridVirtual";
+import { PHOTO_GRID_MARGIN } from "./constants";
 import { formatMonth, getMonthKey } from "./format";
 import { shouldSwapDimensions } from "./should-swap-dimensions";
 

@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useCategoriesImages } from "../api/hooks";
 import type { Category, Image } from "../api/types";
+import { cn } from "../utils/cn";
 import {
   virtualizeCategoryList,
   type CategoryGridData,
@@ -16,7 +17,7 @@ import CategoriesHeader, {
   type CategoryHeaderProps,
 } from "./CategoriesHeader";
 import CategoriesRow, { type CategoryRowProps } from "./CategoriesRow";
-import type { DateTimelineProps } from "./DateTimeline";
+import { CategoryBreadcrumbs } from "./CategoryBreadcrumbs";
 import {
   GroupedVirtualView,
   type GroupedVirtualViewHandle,
@@ -24,6 +25,7 @@ import {
   type RowWithIndex,
   type VirtualViewGroupConfig,
 } from "./GroupedVirtualView";
+import { horizontalRuleGroup } from "./HorizontalRule";
 import LabeledScrollbar from "./LabeledScrollbar";
 import {
   PHOTO_GROUP_HEADER_HEIGHT,
@@ -36,12 +38,10 @@ import {
 } from "./PhotoJustifiedRow";
 
 export const MixedContentCategory = ({
-  categoryId,
-  handleTimelineContext,
+  category,
   subCategories,
 }: {
-  categoryId: number;
-  handleTimelineContext: (newCtx: Partial<DateTimelineProps>) => void;
+  category: Category;
   subCategories: Category[];
 }) => {
   const groupedVirtualViewRef = useRef<GroupedVirtualViewHandle>(null);
@@ -51,6 +51,7 @@ export const MixedContentCategory = ({
   >(undefined);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [virtualizerWidth, setVirtualizerWidth] = useState<number>(0);
+  const [showImages, setShowImages] = useState<boolean>(category.id !== 0);
 
   // Query Images for the category, recursively to get all
   const {
@@ -58,7 +59,7 @@ export const MixedContentCategory = ({
     isLoading: imagesLoading,
     error: imagesError,
   } = useCategoriesImages(
-    categoryId,
+    showImages && category.nb_images > 0 ? category.id : undefined,
     {
       all: true,
       order: "date_available",
@@ -89,7 +90,10 @@ export const MixedContentCategory = ({
     CategoryHeaderProps,
     CategoryRowProps,
     CategoryRow
-  > = useMemo(() => {
+  > | null = useMemo(() => {
+    if (subCategories.length === 0) {
+      return null;
+    }
     // Convert subcategories into a grid
     const categoryGridData: CategoryGridData = virtualizeCategoryList(
       subCategories,
@@ -97,6 +101,7 @@ export const MixedContentCategory = ({
       virtualizerWidth,
       {
         gap: 0,
+        rows: showImages === false ? Number.MAX_VALUE : undefined,
       },
     );
 
@@ -140,7 +145,7 @@ export const MixedContentCategory = ({
       },
     };
     return categoriesConfig;
-  }, [subCategories, isExpanded, virtualizerWidth]);
+  }, [subCategories, isExpanded, showImages, virtualizerWidth]);
 
   const loadingRandomOrder = useMemo(() => {
     return (
@@ -217,34 +222,48 @@ export const MixedContentCategory = ({
   // Combine albums and images
   const groups: VirtualViewGroupConfig[] = useMemo(
     () => [
-      categoriesViewGroup as VirtualViewGroupConfig,
+      ...[categoriesViewGroup as VirtualViewGroupConfig | null].filter(
+        (g) => g !== null,
+      ),
       ...(imagesViewGroups as VirtualViewGroupConfig[]),
+      horizontalRuleGroup,
     ],
     [categoriesViewGroup, imagesViewGroups],
   );
 
   return (
-    <div className="size-full overflow-hidden relative">
-      <div className="absolute right-0 top-0 h-full z-100">
-        <LabeledScrollbar
-          groups={groups}
-          scrollOffset={scrollValues?.scrollOffset ?? 0}
-          viewportHeight={scrollValues?.viewportHeight ?? 0}
-          onChangeScrollPercent={(newScrollPercent) => {
-            groupedVirtualViewRef.current?.setScrollPercent(newScrollPercent);
-          }}
-        />
+    <>
+      {category.id !== 0 && <CategoryBreadcrumbs category={category} />}
+
+      <div className="flex flex-row flex-grow relative overflow-hidden pt-2 w-full">
+        <div className="size-full overflow-hidden relative">
+          <GroupedVirtualView
+            ref={groupedVirtualViewRef}
+            className={cn(
+              "relative z-0",
+              imagesViewGroups.length ? "no-scrollbar" : "",
+            )}
+            groups={groups}
+            enabled={virtualizerWidth > 0}
+            onWidthUpdate={(width) => {
+              setVirtualizerWidth(width);
+            }}
+            onScrollUpdate={(values) => setScrollValues(values)}
+          />
+        </div>
       </div>
-      <GroupedVirtualView
-        ref={groupedVirtualViewRef}
-        className="relative z-0 no-scrollbar"
-        groups={groups}
-        enabled={virtualizerWidth > 0}
-        onWidthUpdate={(width) => {
-          setVirtualizerWidth(width);
-        }}
-        onScrollUpdate={(values) => setScrollValues(values)}
-      />
-    </div>
+      {imagesViewGroups.length > 0 && (
+        <div className="absolute right-0 top-0 h-full z-100">
+          <LabeledScrollbar
+            groups={groups}
+            scrollOffset={scrollValues?.scrollOffset ?? 0}
+            viewportHeight={scrollValues?.viewportHeight ?? 0}
+            onChangeScrollPercent={(newScrollPercent) => {
+              groupedVirtualViewRef.current?.setScrollPercent(newScrollPercent);
+            }}
+          />
+        </div>
+      )}
+    </>
   );
 };

@@ -12,7 +12,7 @@ export interface Category {
   max_date_last?: string;
   dir?: string;
   status: "public" | "private";
-  uppercats: string;
+  uppercats: string | null;
   global_rank?: string;
   id_uppercat?: number | null;
   has_children?: boolean;

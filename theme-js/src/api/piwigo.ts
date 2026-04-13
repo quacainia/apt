@@ -214,10 +214,14 @@ class PiwigoAPI {
     console.log("getCategoriesImages");
     const {
       all,
+      cat_id,
       derivatives,
       image_fields: image_fields,
       ...queryParams
     } = params;
+    if (cat_id == undefined) {
+      return { stat: "noop" };
+    }
     const processedParams = {
       image_fields: image_fields?.join(", "),
       derivatives: derivatives?.join(", "),

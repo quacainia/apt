@@ -178,7 +178,13 @@ export default function LabeledScrollbar<
     }
   }, [scrollOffset]);
 
-  if (!totalHeight || totalHeight <= 0) return null;
+  if (!totalHeight || totalHeight <= 0) {
+    return null;
+  }
+
+  if (viewportHeight > totalHeight) {
+    return null;
+  }
 
   return (
     <div

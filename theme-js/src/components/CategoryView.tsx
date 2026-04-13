@@ -1,13 +1,7 @@
-import { Ellipsis, Home } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
 import { useCategoriesList } from "../api/hooks";
-import type { LayoutRow, LayoutRowHeader } from "../utils/calculate-layout";
-import AlbumGrid from "./AlbumGrid";
-import DateTimeline, { type DateTimelineProps } from "./DateTimeline";
-import { Link } from "./Link";
+import type { Category } from "../api/types";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { MixedContentCategory } from "./MixedContentCategory";
-import PhotoGridContainer from "./PhotoGridContainer";
 import { StandardErrorMessage } from "./StandardErrorMessage";
 
 export default function CategoryView({
@@ -17,13 +11,6 @@ export default function CategoryView({
 }) {
   const categoryIdNumber =
     typeof categoryId === "number" ? categoryId : parseInt(categoryId ?? "");
-  const [layoutGroups, setLayoutGroups] = useState<LayoutRowHeader[]>([]);
-  const [layoutRows, setLayoutRows] = useState<LayoutRow[]>([]);
-  const [scrollOffset, setScrollOffset] = useState<number>(0);
-  const [handleSetScroll, setHandleSetScroll] = useState<
-    (pct: number) => void | null
-  >(() => {});
-  const [totalHeight, setTotalHeight] = useState<number | undefined>(undefined);
 
   const {
     data: categoryData,
@@ -33,51 +20,25 @@ export default function CategoryView({
     cat_id: isNaN(categoryIdNumber) ? undefined : categoryIdNumber,
   });
 
-  const category =
-    categoryData?.stat === "ok" ? categoryData.result?.categories?.at(0) : null;
+  const category: Category | null | undefined =
+    categoryData?.stat === "ok"
+      ? categoryIdNumber !== 0
+        ? categoryData.result?.categories?.at(0)
+        : {
+            id: 0,
+            name: "root",
+            nb_categories: categoryData.result?.categories.length ?? 0,
+            nb_images: 0,
+            status: "private",
+            uppercats: null,
+          }
+      : null;
   const subCategories =
     categoryData?.stat === "ok"
       ? categoryIdNumber === 0
         ? (categoryData.result?.categories ?? [])
         : (categoryData.result?.categories?.slice(1) ?? [])
       : [];
-
-  const { data: uppercatData } = useCategoriesList({
-    cat_id: category?.id_uppercat ? category.id_uppercat : undefined,
-    limit: 1,
-  });
-  const uppercat =
-    uppercatData?.stat === "ok" ? uppercatData.result?.categories?.at(0) : null;
-
-  // This NEEDS to be memoized so it doesn't cause rerender loops
-  const handleTimelineContext = useCallback(
-    (ctx: Partial<DateTimelineProps>) => {
-      setLayoutGroups((value) => ctx.layoutGroups ?? value);
-      setLayoutRows((value) => ctx.layoutRows ?? value);
-      setScrollOffset((value) => ctx.scrollOffset ?? value);
-      setHandleSetScroll(
-        (value: (pct: number) => void | null) => ctx.setScroll ?? value,
-      );
-      setTotalHeight((value) => ctx.totalHeight ?? value);
-    },
-    [],
-  );
-
-  const { showImages, showSubCategories } = useMemo((): {
-    showImages: boolean;
-    showSubCategories: boolean;
-  } => {
-    if (categoryIdNumber === 0) {
-      return { showImages: false, showSubCategories: true };
-    }
-    if (category?.nb_categories === 0 && (category?.nb_images ?? 0) > 0) {
-      return { showImages: true, showSubCategories: false };
-    }
-    if (category?.nb_images === 0 && (category?.nb_categories ?? 0) > 0) {
-      return { showImages: false, showSubCategories: true };
-    }
-    return { showImages: false, showSubCategories: false };
-  }, [categoryIdNumber, category]);
 
   if (categoryError) {
     return <StandardErrorMessage error={categoryError} />;
@@ -90,66 +51,15 @@ export default function CategoryView({
   return (
     <div className="relative w-full flex-grow overflow-hidden">
       <div className="size-full mx-auto flex flex-col overflow-hidden items-center">
-        {categoryIdNumber !== 0 && (
-          <div className="flex flex-row max-w-7xl px-4 sm:px-6 lg:px-8 gap-2 md:gap-4 mt-2 items-center w-full">
-            <Link
-              // @todo fix breadcrumbs
-              to={{ type: "home" }}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium"
-            >
-              <Home />
-            </Link>
-            <div>/</div>
-            {category?.id_uppercat && (
-              <>
-                {!uppercat ||
-                  (uppercat.id_uppercat && (
-                    <>
-                      <div>
-                        <Ellipsis />
-                      </div>
-                      <div>/</div>
-                    </>
-                  ))}
-                <Link
-                  // @todo fix breadcrumbs
-                  to={{ type: "category", id: category.id_uppercat }}
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium text-lg"
-                >
-                  {uppercat?.name || <Ellipsis />}
-                </Link>
-                <div>/</div>
-              </>
-            )}
-            <div className="text-lg">{category?.name}</div>
-          </div>
+        {category ? (
+          <MixedContentCategory
+            category={category}
+            subCategories={subCategories}
+          />
+        ) : (
+          // @todo: this _shouldn't_ happen, but it would be good to make sure it won't
+          <div>Error finding category.</div>
         )}
-
-        <div className="flex flex-row flex-grow relative overflow-hidden pt-2 w-full">
-          {showSubCategories && <AlbumGrid categories={subCategories} />}
-          {showImages && (
-            <PhotoGridContainer
-              onTimelineContext={handleTimelineContext}
-              categoryId={category!.id}
-            />
-          )}
-          {!showSubCategories && !showImages && (
-            <MixedContentCategory
-              categoryId={category!.id}
-              subCategories={subCategories}
-              handleTimelineContext={handleTimelineContext}
-            />
-          )}
-        </div>
-      </div>
-      <div className="absolute top-0 right-0 lg:block w-16 h-full">
-        <DateTimeline
-          layoutGroups={layoutGroups}
-          layoutRows={layoutRows}
-          scrollOffset={scrollOffset}
-          setScroll={handleSetScroll}
-          totalHeight={totalHeight}
-        />
       </div>
     </div>
   );
