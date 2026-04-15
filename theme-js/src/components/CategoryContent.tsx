@@ -1,9 +1,11 @@
 import { useMemo, useRef, useState } from "react";
 import { useCategoriesImages } from "../api/hooks";
 import type { Category, Image } from "../api/types";
+import { useBreakpoint } from "../hooks";
 import { cn } from "../utils/cn";
 import {
   virtualizeCategoryList,
+  type CategoryGridConfig,
   type CategoryGridData,
   type CategoryRow,
 } from "../utils/virtualize-category-list";
@@ -54,6 +56,14 @@ export const CategoryContent = ({
   // @todo: show all images recursively
   const [showImages, setShowImages] = useState<boolean>(category.id !== 0);
 
+  // Responsive column count based on Tailwind breakpoints
+  const columns = useBreakpoint<number>({
+    xs: 1,
+    sm: 2,
+    md: 3,
+    lg: 4,
+  });
+
   // Query Images for the category, recursively to get all
   const {
     data: imagesData,
@@ -96,14 +106,16 @@ export const CategoryContent = ({
       return null;
     }
     // Convert subcategories into a grid
+    const categoriesGridConfig: Partial<CategoryGridConfig> = {
+      gap: 16,
+      rows: showImages === false ? Number.MAX_VALUE : undefined,
+      columns,
+    };
     const categoryGridData: CategoryGridData = virtualizeCategoryList(
       subCategories,
       isExpanded,
       virtualizerWidth,
-      {
-        gap: 0,
-        rows: showImages === false ? Number.MAX_VALUE : undefined,
-      },
+      categoriesGridConfig,
     );
 
     // Mostly static header props
@@ -140,13 +152,14 @@ export const CategoryContent = ({
           return {
             row,
             onToggleExpanded: setIsExpanded,
+            config: categoriesGridConfig,
           };
         },
         Component: CategoriesRow,
       },
     };
     return categoriesConfig;
-  }, [subCategories, isExpanded, showImages, virtualizerWidth]);
+  }, [subCategories, isExpanded, showImages, virtualizerWidth, columns]);
 
   const loadingRandomOrder = useMemo(() => {
     return (
@@ -162,6 +175,9 @@ export const CategoryContent = ({
    *
    * @todo - make the grouping better. Sometimes day or year is better,
    *         sometimes it'd be better to search for clusters in a day.
+   *
+   * @todo - There's a bug with this fully rerendering when things change,
+   *         like the subcategories when the window resizes.
    */
   const imagesViewGroups = useMemo(() => {
     if (images == null) {

@@ -26,7 +26,12 @@ export interface VirtualViewGroupConfig<
     Component: React.ComponentType<THeaderProps>;
     props: THeaderProps;
     sticky?: boolean;
-    label: { value: string; isPrimary?: boolean; subLabel?: string };
+    label: {
+      value: string;
+      isPrimary?: boolean;
+      subLabel?: string;
+      hidden?: boolean;
+    };
   };
   rows: {
     data: TRowData[]; // The raw data

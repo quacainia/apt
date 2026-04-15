@@ -83,21 +83,26 @@ export default function LabeledScrollbar<
     groups.forEach((group) => {
       // Account for header height
       currentOffset += group.header.height;
-      result.push({
-        type: "header",
-        pct: currentOffset / totalHeight,
-        group,
-      });
+
+      if (group.header.label.hidden !== true) {
+        result.push({
+          type: "header",
+          pct: currentOffset / totalHeight,
+          group,
+        });
+      }
 
       group.rows.data.forEach((row, idx) => {
         currentOffset += group.rows.getRowHeight(row, idx);
-        result.push({
-          type: "row",
-          pct: currentOffset / totalHeight,
-          group,
-          index: idx,
-          data: row,
-        });
+        if (group.header.label.hidden !== true) {
+          result.push({
+            type: "row",
+            pct: currentOffset / totalHeight,
+            group,
+            index: idx,
+            data: row,
+          });
+        }
       });
     });
     return result;
@@ -107,26 +112,31 @@ export default function LabeledScrollbar<
   const ticks = useMemo(() => {
     // eslint didn't like a normal variable for some reason
     const value = { currentOffset: 0 };
-    const ticks = groups.map((group) => {
-      const labelData = group.header.label;
-      const groupHeight =
-        group.header.height +
-        group.rows.data.reduce(
-          (sum, r, i) => sum + group.rows.getRowHeight(r, i),
-          0,
-        );
+    const ticks = groups
+      .map((group) => {
+        if (group.header.label.hidden === true) {
+          return;
+        }
+        const labelData = group.header.label;
+        const groupHeight =
+          group.header.height +
+          group.rows.data.reduce(
+            (sum, r, i) => sum + group.rows.getRowHeight(r, i),
+            0,
+          );
 
-      const tick = {
-        id: group.id,
-        offset: value.currentOffset,
-        label: labelData.value,
-        isPrimary: labelData.isPrimary,
-        height: groupHeight,
-      };
+        const tick = {
+          id: group.id,
+          offset: value.currentOffset,
+          label: labelData.value,
+          isPrimary: labelData.isPrimary,
+          height: groupHeight,
+        };
 
-      value.currentOffset += groupHeight;
-      return tick;
-    });
+        value.currentOffset += groupHeight;
+        return tick;
+      })
+      .filter((t) => t !== undefined);
     return ticks;
   }, [groups]);
 
@@ -211,6 +221,9 @@ export default function LabeledScrollbar<
           return (
             <>
               {/* The Actual Scroll Position Indicator */}
+              {/**
+               * @todo this goes off the bottom of the screen
+               */}
               <div
                 className={cn(
                   "absolute right-0 h-[2px] w-full bg-black dark:bg-white transition-opacity",

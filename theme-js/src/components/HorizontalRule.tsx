@@ -14,7 +14,7 @@ export const horizontalRuleGroup: VirtualViewGroupConfig = {
     Component: HorizontalRule,
     height: 20,
     props: {},
-    label: { value: "Horizontal Rule" },
+    label: { value: "Horizontal Rule", hidden: true },
   },
   rows: {
     data: [],

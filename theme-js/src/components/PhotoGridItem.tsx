@@ -39,7 +39,6 @@ export default function PhotoGridItem({
   const imgRef = useRef<HTMLImageElement | null>(null);
   const thumbUrl =
     image?.derivatives?.[size ?? "medium"]?.url || image?.element_url;
-  
 
   useEffect(() => {
     if (!thumbUrl) return;
@@ -47,6 +46,10 @@ export default function PhotoGridItem({
     const controller = new AbortController();
     let completed = false;
 
+    /**
+     * @todo something goes wrong and you sometimes end up with an error and a
+     * 0B returned image, maybe because of abort?
+     */
     async function preload() {
       try {
         // 1. This is a GUARANTEED abortable network request

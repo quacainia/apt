@@ -79,7 +79,11 @@ export const virtualizeCategoryList = (
   width: number,
   configOverrides: Partial<CategoryGridConfig> = {},
 ): CategoryGridData => {
-  const finalConfig = { ...defaultConfig, ...configOverrides };
+  // Remove `undefined` values so they don't overwrite the defaults.
+  const filteredConfigOverrides = Object.fromEntries(
+    Object.entries(configOverrides).filter(([_, value]) => value !== undefined),
+  );
+  const finalConfig = { ...defaultConfig, ...filteredConfigOverrides };
   const {
     rows: maxRows,
     columns,
@@ -110,7 +114,7 @@ export const virtualizeCategoryList = (
     allItems.push({
       type: "view-all-tile",
       hiddenCount,
-      totalCount: allItems.length,
+      totalCount: categories.length,
     });
   }
 

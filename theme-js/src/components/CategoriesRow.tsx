@@ -22,7 +22,7 @@ export const CategoriesRow = ({
 }: CategoryRowProps) => {
   const finalConfig = { ...defaultConfig, ...config };
 
-  const { columns } = finalConfig;
+  const { columns, gap } = finalConfig;
   const { items } = row;
 
   // Handle View All click
@@ -37,7 +37,7 @@ export const CategoriesRow = ({
         <button
           key="show-more"
           onClick={handleViewAll}
-          className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-900 border-2 border-dashed border-gray-300 rounded-lg p-4 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-800 dark:hover:to-gray-900 transition-colors cursor-pointer group"
+          className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-900 border-2 border-dashed border-gray-300 rounded-lg p-4 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-800 dark:hover:to-gray-900 transition-colors cursor-pointer group aspect-square"
         >
           <div className="text-center">
             <div className="text-3xl font-bold text-gray-600 dark:text-gray-400 mb-2 group-hover:scale-110 transition-transform">
@@ -53,9 +53,9 @@ export const CategoriesRow = ({
     return <AlbumCard album={item} key={item.id} />;
   });
 
-  // @todo: this won't work with media point breaks
   const gridColsClass =
     {
+      1: "grid-cols-1",
       2: "grid-cols-2",
       3: "grid-cols-3",
       4: "grid-cols-4",
@@ -65,7 +65,9 @@ export const CategoriesRow = ({
 
   return (
     <div className="w-full">
-      <div className={`grid ${gridColsClass} gap-4 w-full`}>{gridItems}</div>
+      <div className={`grid ${gridColsClass} w-full`} style={{ gap }}>
+        {gridItems}
+      </div>
     </div>
   );
 };

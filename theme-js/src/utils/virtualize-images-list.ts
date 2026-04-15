@@ -98,7 +98,7 @@ export const virtualizeImagesList = (images: Image[], width: number) => {
   });
 
   for (const idx in groupsSortedByMonth) {
-    const prev = groupsSortedByMonth.at(parseInt(idx) - 1);
+    const prev = groupsSortedByMonth[parseInt(idx) - 1];
     groupsSortedByMonth[idx] = {
       ...groupsSortedByMonth[idx],
       isNewYear:
