@@ -8,6 +8,7 @@ Apt is currently in its demo / alpha phase and cannot cover the full range of ne
 
 - `2026-03-28`: In this initial version, one can view top level albums and a list of the images directly within those top level albums on a timeline.
 - `2026-04-09`: Categories are navigable, but there is still some UI to iron out.
+- `2026-04-15`: Added a photo view page with limited meta info and interactivity. At this point if you just want read-only categories and photos it is functional, but not without bugs.
 
 # Goals
 
