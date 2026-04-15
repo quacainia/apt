@@ -1,3 +1,4 @@
+{if strpos($smarty.server.HTTP_ACCEPT, "application/json") === false}
 <!DOCTYPE html>
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
 
@@ -101,3 +102,4 @@
   </script>
 
 {* end header.tpl *}
+{/if}

@@ -9,7 +9,7 @@ class ApiError extends Error {
   }
 }
 
-const BASE_URL = import.meta.env.DEV ? "/piwigo" : "./";
+export const BASE_URL = import.meta.env.DEV ? "/piwigo" : ".";
 
 class PiwigoAPI {
   private client: AxiosInstance;
@@ -214,12 +214,11 @@ class PiwigoAPI {
     console.log("getCategoriesImages");
     const {
       all,
-      cat_id,
       derivatives,
       image_fields: image_fields,
       ...queryParams
     } = params;
-    if (cat_id == undefined) {
+    if (params.cat_id == undefined) {
       return { stat: "noop" };
     }
     const processedParams = {

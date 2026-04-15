@@ -51,6 +51,7 @@ export const CategoryContent = ({
   >(undefined);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [virtualizerWidth, setVirtualizerWidth] = useState<number>(0);
+  // @todo: show all images recursively
   const [showImages, setShowImages] = useState<boolean>(category.id !== 0);
 
   // Query Images for the category, recursively to get all
@@ -194,7 +195,7 @@ export const CategoryContent = ({
           data: group.rows,
           getTooltip: ({ group }) => group.header.label.value,
           getProps: (rowWithIndex: RowWithIndex<ImageLayoutRow>) => {
-            return { row: rowWithIndex.data };
+            return { row: rowWithIndex.data, categoryId: category.id };
           },
           getRowHeight: (imageLayout: ImageLayoutRow) =>
             imageLayout.height + imageLayout.boxSpacing,
@@ -212,6 +213,7 @@ export const CategoryContent = ({
       }),
     );
   }, [
+    category.id,
     images,
     imagesLoading,
     loadingRandomOrder,

@@ -2,12 +2,14 @@ import { TriangleAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Image, ImageDerivatives } from "../api/types";
 import { cn } from "../utils/cn";
+import type { PiwigoRoute } from "../utils/routes";
 import { shouldSwapDimensions } from "../utils/should-swap-dimensions";
+import { Link } from "./Link";
 
 export type PhotoGridItemProps = {
   image: Image;
   isSelected?: boolean;
-  onSelect?: () => void;
+  to?: PiwigoRoute;
   size?: keyof ImageDerivatives;
   hideOverlay?: boolean;
 } & (
@@ -25,7 +27,7 @@ export default function PhotoGridItem({
   height,
   image,
   isSelected,
-  onSelect,
+  to,
   size,
   hideOverlay,
 }: PhotoGridItemProps) {
@@ -37,6 +39,7 @@ export default function PhotoGridItem({
   const imgRef = useRef<HTMLImageElement | null>(null);
   const thumbUrl =
     image?.derivatives?.[size ?? "medium"]?.url || image?.element_url;
+  
 
   useEffect(() => {
     if (!thumbUrl) return;
@@ -116,8 +119,6 @@ export default function PhotoGridItem({
     };
   }, [imageSrc]);
 
-  const Container = onSelect ? "button" : "div";
-
   const isRotated = shouldSwapDimensions(image);
   const imageWidth = !isRotated ? image.width : image.height;
   const imageHeight = !isRotated ? image.height : image.width;
@@ -127,29 +128,25 @@ export default function PhotoGridItem({
     image.height / containerRef.current.offsetHeight <
       image.width / containerRef.current.offsetWidth;
 
-  return (
-    <Container
-      onClick={onSelect}
-      ref={
-        containerRef as React.RefObject<HTMLButtonElement | null> &
-          React.RefObject<HTMLDivElement | null>
-      }
-      className={cn(
-        `group relative aspect-square overflow-hidden bg-transparent dark:bg-transparent transition-shadow flex justify-center items-center`,
-        isSelected ? "ring-2 ring-gray-900 dark:ring-white" : "",
-        onSelect ? "hover:shadow-md" : "",
-        isInverted ? "ring-2 ring-red-500 dark:ring-red-700" : "",
-      )}
-      style={{
-        ...(height
-          ? {
-              height,
-              width: (height / imageHeight) * imageWidth,
-            }
-          : { height: "100%", width: "100%" }),
-        objectFit: "cover",
-      }}
-    >
+  const containerClassName = cn(
+    `group relative aspect-square overflow-hidden bg-transparent dark:bg-transparent transition-shadow flex justify-center items-center`,
+    isSelected ? "ring-2 ring-gray-900 dark:ring-white" : "",
+    to ? "hover:shadow-md" : "",
+    isInverted ? "ring-2 ring-red-500 dark:ring-red-700" : "",
+  );
+
+  const containerStyle = {
+    ...(height
+      ? {
+          height,
+          width: (height / imageHeight) * imageWidth,
+        }
+      : { height: "100%", width: "100%" }),
+    objectFit: "cover",
+  } as const;
+
+  const containerContent = (
+    <>
       {error ? (
         <div className="flex flex-col justify-center items-center size-full relative z-20">
           <TriangleAlert
@@ -196,6 +193,24 @@ export default function PhotoGridItem({
           ⭐ {image.rating_score}
         </div>
       )}
-    </Container>
+    </>
+  );
+
+  return to ? (
+    <Link
+      to={to}
+      className={containerClassName}
+      style={containerStyle as React.CSSProperties}
+    >
+      {containerContent}
+    </Link>
+  ) : (
+    <div
+      ref={containerRef as React.RefObject<HTMLDivElement>}
+      className={containerClassName}
+      style={containerStyle as React.CSSProperties}
+    >
+      {containerContent}
+    </div>
   );
 }

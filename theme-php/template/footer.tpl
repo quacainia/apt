@@ -1,3 +1,4 @@
+{if strpos($smarty.server.HTTP_ACCEPT, "application/json") === false}
 <script>
 </script>
 
@@ -92,3 +93,4 @@
 </body>
 
 </html>
+{/if}

@@ -3,9 +3,13 @@ import PhotoGridItem from "./PhotoGridItem";
 
 export interface PhotoJustifiedRowProps {
   row: ImageLayoutRow;
+  categoryId?: number | string;
 }
 
-export const PhotoJustifiedRow = ({ row }: PhotoJustifiedRowProps) => {
+export const PhotoJustifiedRow = ({
+  row,
+  categoryId,
+}: PhotoJustifiedRowProps) => {
   return (
     <div className="flex gap-1.5">
       {row.images.map((il) => {
@@ -14,6 +18,15 @@ export const PhotoJustifiedRow = ({ row }: PhotoJustifiedRowProps) => {
             key={il.image.id}
             image={il.image}
             height={row.height as number}
+            to={
+              categoryId
+                ? {
+                    type: "picture",
+                    id: il.image.id.toString(),
+                    category: categoryId.toString(),
+                  }
+                : undefined
+            }
           />
         );
       })}

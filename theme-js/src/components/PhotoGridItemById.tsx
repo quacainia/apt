@@ -1,11 +1,12 @@
 import { useImageInfo } from "../api/hooks";
-import type { ImageDerivatives } from "../api/types";
+import type { Image, ImageDerivatives } from "../api/types";
+import type { PiwigoRoute } from "../utils/routes";
 import PhotoGridItem from "./PhotoGridItem";
 
 interface PhotoGridItemByIdProps {
   imageId: number;
   isSelected?: boolean;
-  onSelect?: () => void;
+  to?: PiwigoRoute;
   size?: keyof ImageDerivatives;
   hideOverlay?: boolean;
 }
@@ -13,13 +14,13 @@ interface PhotoGridItemByIdProps {
 export default function PhotoGridItemById({
   imageId,
   isSelected,
-  onSelect,
+  to,
   size,
   hideOverlay,
 }: PhotoGridItemByIdProps) {
   const { data: imageData, isLoading, error } = useImageInfo(imageId);
 
-  const image =
+  const image: Image | null =
     imageData?.stat === "ok" && imageData.result ? imageData.result : null;
 
   if (error) {
@@ -34,7 +35,7 @@ export default function PhotoGridItemById({
     <PhotoGridItem
       image={image}
       isSelected={isSelected}
-      onSelect={onSelect}
+      to={to}
       size={size}
       hideOverlay={hideOverlay}
     />

@@ -12,7 +12,7 @@ export const useRouter = create<RouterStore>((set) => ({
 
   navigate: (newRoute: PiwigoRoute) => {
     const href = routeToHref(newRoute);
-    const url = new URL(href, window.location.origin);
+    const url = new URL(href, window.location.href);
     window.history.pushState(null, "", url.href);
     set({ route: newRoute });
   },
