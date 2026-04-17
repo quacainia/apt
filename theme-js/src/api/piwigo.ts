@@ -14,8 +14,10 @@ export const BASE_URL = import.meta.env.DEV ? "/piwigo" : ".";
 class PiwigoAPI {
   private client: AxiosInstance;
   private baseUrl: string;
-  private SEARCH_METHOD = "apt.images.search";
-  private CATEGORIES_GET_IMAGES_METHOD = "apt.categories.getImages";
+  private SEARCH_METHOD = "pwg.images.search";
+  private APT_SEARCH_METHOD = "apt.images.search";
+  private CATEGORIES_GET_IMAGES_METHOD = "pwg.categories.getImages";
+  private APT_CATEGORIES_GET_IMAGES_METHOD = "apt.categories.getImages";
 
   constructor(baseUrl: string = BASE_URL) {
     this.baseUrl = baseUrl;
@@ -210,8 +212,12 @@ class PiwigoAPI {
       order?: Types.IMAGE_ORDER;
     },
     onProgress?: (percent: number) => void,
+    isPluginInstalled: boolean = false,
   ): Promise<Types.ApiResponse<Types.CategoriesImagesResponse>> {
     console.log("getCategoriesImages");
+    const METHOD = isPluginInstalled
+      ? this.APT_CATEGORIES_GET_IMAGES_METHOD
+      : this.CATEGORIES_GET_IMAGES_METHOD;
     const {
       all,
       derivatives,
@@ -230,17 +236,12 @@ class PiwigoAPI {
       const results = await this.fetchAllPages<
         "images",
         Types.ImagesSearchResponse
-      >(
-        this.CATEGORIES_GET_IMAGES_METHOD,
-        processedParams,
-        "images",
-        onProgress,
-      );
+      >(METHOD, processedParams, "images", onProgress);
       return results;
     }
     const response = await this.client.get("/ws.php", {
       params: {
-        method: this.CATEGORIES_GET_IMAGES_METHOD,
+        method: METHOD,
         ...processedParams,
       },
     });

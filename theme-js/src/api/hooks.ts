@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { useEntityStore } from "../hooks";
 import piwigoAPI from "./piwigo";
 import * as Types from "./types";
 
@@ -64,10 +65,15 @@ export function useCategoriesImages(
   params?: Parameters<typeof piwigoAPI.getCategoriesImages>[0],
   onProgress?: (percent: number) => void,
 ) {
+  const themeStatus = useEntityStore((e) => e.entities.themeStatus);
   return useQuery({
     queryKey: QUERY_KEYS.categoriesImages(catId, params),
     queryFn: () =>
-      piwigoAPI.getCategoriesImages({ cat_id: catId, ...params }, onProgress),
+      piwigoAPI.getCategoriesImages(
+        { cat_id: catId, ...params },
+        onProgress,
+        themeStatus?.isPluginInstalled,
+      ),
     enabled: !!catId,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

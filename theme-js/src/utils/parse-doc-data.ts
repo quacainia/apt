@@ -6,18 +6,20 @@ export const DEFAULT_JSON_SCRIPT_ID = "apt-theme-json";
  * Parse Piwigo data from a DOM data island element
  * Returns the full response structure with all entity types
  */
-export const parseDocData = (
+export const parseDocData = <T extends object = PiwigoResponse, P = undefined>(
   doc: Document,
   elementId: string = DEFAULT_JSON_SCRIPT_ID,
-): PiwigoResponse | undefined => {
+  fallback: P = undefined as P,
+): T | P => {
   const dataIsland = doc.getElementById(elementId);
-  if (!dataIsland) return;
+  if (!dataIsland) return fallback;
 
   try {
-    const json: PiwigoResponse = JSON.parse(dataIsland.textContent || "");
+    const json: T = JSON.parse(dataIsland.textContent || "");
     return json;
   } catch (e) {
     console.error("Failed to parse Piwigo JSON data island:", e);
+    return fallback;
   }
 };
 

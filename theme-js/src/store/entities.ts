@@ -25,7 +25,8 @@ export interface PiwigoResponse {
   images: EntityMap<PhotoPhpImage>;
   categories?: EntityMap;
   tags?: EntityMap;
-  [key: string]: EntityMap | undefined;
+  themeStatus?: AptThemeStatus;
+  [key: string]: EntityMap | Record<string, unknown> | undefined;
 }
 
 /**
@@ -72,8 +73,19 @@ interface EntityState {
   clearEntities: (entityType?: string) => void;
 }
 
+type AptThemeStatus = {
+  distpath?: string;
+  isPluginInstalled: boolean;
+};
+
 export const useEntityStore = create<EntityState>((set, get) => ({
-  entities: { images: {} },
+  entities: {
+    images: {},
+    themeStatus: {
+      isPluginInstalled: false,
+      ...(window.piwigoData?.aptThemeStatus ?? {}),
+    },
+  },
 
   addEntities: (entityType, newEntities) =>
     set((state) => ({
@@ -109,11 +121,11 @@ export const useEntityStore = create<EntityState>((set, get) => ({
   },
 
   hydrateFromDOM: (documentElementId = DEFAULT_JSON_SCRIPT_ID) => {
-    const json: PiwigoResponse | undefined = parseDocData(
+    const json: PiwigoResponse | undefined = parseDocData<PiwigoResponse>(
       document,
       documentElementId,
     );
-    
+
     if (json) {
       get().addFromResponse(json);
     }
@@ -124,7 +136,6 @@ export const useEntityStore = create<EntityState>((set, get) => ({
       if (!entityType) {
         return { entities: { images: {} } };
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [entityType]: _, ...rest } = state.entities;
       return { entities: { ...rest, [entityType]: {} } as PiwigoResponse };
     });
