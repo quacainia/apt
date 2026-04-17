@@ -14,6 +14,10 @@ define('APT_PATH', PHPWG_PLUGINS_PATH . basename(dirname(__FILE__)) . '/');
 // Register the API method
 add_event_handler('ws_add_methods', 'custom_api_register');
 
+include_once(APT_PATH . 'include/event_handlers.inc.php');
+
+add_event_handler('loc_end_page_header', 'apt_loc_end_page_header');
+
 function custom_api_register($arr)
 {
   global $conf;

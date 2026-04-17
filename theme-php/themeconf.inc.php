@@ -18,7 +18,7 @@ $themeconf = array(
 );
 
 define('APT_THEME_PATH', 'themes/apt/');
-define('APT_THEME_DIST_PATH', APT_THEME_PATH . '/dist/');
+define('APT_THEME_DIST_PATH', APT_THEME_PATH . 'dist/');
 define('APT_THEME_DEV_SERVER', 'http://localhost:5173/');
 
 // Add a listener to the header initialization
@@ -67,6 +67,10 @@ SCRIPT);
       $template->append(
         'head_elements',
         '<script type="module" src="' . APT_THEME_DIST_PATH . $main['file'] . '"></script>'
+      );
+      $template->append(
+        'apt_theme_satus_json',
+        ["distpath", '"./' . APT_THEME_DIST_PATH . '"']
       );
 
       // Inject CSS (Vite bundles CSS separately)
