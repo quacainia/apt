@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "rm -rf ../theme-php/dist && cp -r dist ../theme-php/",
     "lint": "eslint .",
     "preview": "vite preview"
   },
