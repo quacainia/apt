@@ -1,4 +1,5 @@
 import { Moon, Sun, SunMoon } from "lucide-react";
+import PiwigoLogo from "../assets/piwigo.flat.svg?react";
 import { useAppStore, type AppState } from "../store/useAppStore";
 import { Link } from "./Link";
 
@@ -18,11 +19,7 @@ export default function Header({ username, onLogout }: HeaderProps) {
           <div className="flex items-center gap-3">
             <Link to={{ type: "home" }}>
               <h1 className="flex flex-row gap-2 text-xl font-light text-gray-900 dark:text-white items-center">
-                <img
-                  src={`${window.viteDevServer}public/piwigo.flat.svg`}
-                  className="h-8"
-                  alt="📸"
-                />
+                <PiwigoLogo className="h-8 w-[30px] fill-gray-900" />
                 {window.piwigoData?.banner ?? "Piwigo"}
               </h1>
             </Link>
