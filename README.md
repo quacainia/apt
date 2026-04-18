@@ -10,6 +10,13 @@ Apt is currently in its demo / alpha phase and cannot cover the full range of ne
 - `2026-04-09`: Categories are navigable, but there is still some UI to iron out.
 - `2026-04-15`: Added a photo view page with limited meta info and interactivity. At this point if you just want read-only categories and photos it is functional, but not without bugs.
 
+# Demo
+
+
+https://github.com/user-attachments/assets/0d7c2798-331b-4c1f-a8b3-c72554b837de
+
+
+
 # Goals
 
 My current goals are around my perceived issues with current themes available:
