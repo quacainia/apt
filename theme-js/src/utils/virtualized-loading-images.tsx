@@ -39,6 +39,7 @@ export const virtualizedLoadingImages = (
         Component: HeaderComponent,
         props: {},
         label: { value: "Loading..." },
+        key: "images-loading-header",
       },
       rows: {
         data: [{}],
@@ -46,6 +47,7 @@ export const virtualizedLoadingImages = (
         getTooltip: () => "Loading...",
         getRowHeight: () => rowsHeight,
         getProps: () => ({ height: rowsHeight, layout, percentProgress }),
+        getKey: (rowWithIndex) => rowWithIndex.index,
       },
     },
   ];

@@ -5,6 +5,7 @@ import PhotoGridItem from "./PhotoGridItem";
 
 interface PhotoGridItemByIdProps {
   imageId: number;
+  isScrolling: boolean;
   isSelected?: boolean;
   to?: PiwigoRoute;
   size?: keyof ImageDerivatives;
@@ -13,6 +14,7 @@ interface PhotoGridItemByIdProps {
 
 export default function PhotoGridItemById({
   imageId,
+  isScrolling,
   isSelected,
   to,
   size,
@@ -33,6 +35,7 @@ export default function PhotoGridItemById({
   }
   return (
     <PhotoGridItem
+      isScrolling={isScrolling}
       image={image}
       isSelected={isSelected}
       to={to}

@@ -14,12 +14,17 @@ export type ImageLayout = {
 };
 
 export type ImageLayoutRow = {
+  key: string | number | bigint;
   images: ImageLayout[];
   height: number;
   boxSpacing: number;
 };
 
-export const virtualizeImagesList = (images: Image[], width: number) => {
+export const virtualizeImagesList = (
+  images: Image[],
+  width: number,
+  keyPrefix: string = "images",
+) => {
   const groupedByMonth: Record<string, Image[]> = {};
   images.forEach((img) => {
     const monthKey = getMonthKey(img.date_creation || "");
@@ -76,16 +81,17 @@ export const virtualizeImagesList = (images: Image[], width: number) => {
 
     const rows: ImageLayoutRow[] = [];
 
-    for (const imageLayout of imageLayouts) {
+    imageLayouts.forEach((imageLayout, index) => {
       if (imageLayout.layout.left === 0) {
         rows.push({
+          key: `${keyPrefix}-${m}-${index}`,
           height: imageLayout.layout.height,
           images: [],
           boxSpacing: PHOTO_GRID_MARGIN,
         });
       }
       rows.at(-1)?.images.push(imageLayout);
-    }
+    });
     return {
       header: formatMonth(m),
       images,

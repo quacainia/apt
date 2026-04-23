@@ -22,7 +22,6 @@ export const CategoryBreadcrumbs = ({
   return (
     <div className="flex flex-row max-w-7xl px-4 sm:px-6 lg:px-8 gap-2 md:gap-4 my-2 items-center w-full">
       <Link
-        // @todo fix breadcrumbs
         to={{ type: "home" }}
         className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium"
       >
@@ -41,7 +40,6 @@ export const CategoryBreadcrumbs = ({
               </>
             ))}
           <Link
-            // @todo fix breadcrumbs
             to={{ type: "category", id: category.id_uppercat }}
             className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium text-lg"
           >

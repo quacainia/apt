@@ -1,4 +1,4 @@
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useVirtualizer, Virtualizer } from "@tanstack/react-virtual";
 import {
   forwardRef,
   useCallback,
@@ -26,6 +26,7 @@ export interface VirtualViewGroupConfig<
     Component: React.ComponentType<THeaderProps>;
     props: THeaderProps;
     sticky?: boolean;
+    key: string | number | bigint;
     label: {
       value: string;
       isPrimary?: boolean;
@@ -35,14 +36,18 @@ export interface VirtualViewGroupConfig<
   };
   rows: {
     data: TRowData[]; // The raw data
-    Component: React.ComponentType<TRowProps>;
+    Component: React.ComponentType<TRowProps> | null;
+    getKey: (rowWithIndex: RowWithIndex<TRowData>) => string | number | bigint;
     getTooltip: (props: {
       row: TRowData;
       group: VirtualViewGroupConfig<THeaderProps, TRowProps, TRowData>;
       index: number;
     }) => string;
     getRowHeight: (row: TRowData, index: number) => number;
-    getProps: (row: RowWithIndex<TRowData>) => TRowProps;
+    getProps: (
+      rowWithIndex: RowWithIndex<TRowData>,
+      rowVirtualizer: Virtualizer<HTMLDivElement, Element>,
+    ) => TRowProps;
   };
 }
 
@@ -50,14 +55,13 @@ export interface VirtualViewGroupConfig<
 export type DisplayItem =
   | {
       type: "sticky-header" | "header";
-      id: string;
+      key: string | number | bigint;
       start: number;
       height: number; // Total group height (track)
       group: VirtualViewGroupConfig;
     }
   | {
       type: "row";
-      id: string | number | bigint;
       start: number;
       height: number;
       data: RowWithIndex;
@@ -297,7 +301,7 @@ export const GroupedVirtualView = forwardRef<
           if (meta.group.header.sticky) {
             return {
               type: "sticky-header",
-              id: `group-${gIdx}`,
+              key: meta.group.header.key,
               start: meta.start,
               height: meta.height,
               group: meta.group,
@@ -316,7 +320,7 @@ export const GroupedVirtualView = forwardRef<
             }
             return {
               type: "header",
-              id: `group-${flatItem.groupIndex}`,
+              key: groupMeta.group.header.key,
               start: groupMeta.start,
               height: flatItem.height,
               group: groupMeta.group,
@@ -325,7 +329,6 @@ export const GroupedVirtualView = forwardRef<
 
           return {
             type: "row",
-            id: vRow.key,
             start: vRow.start,
             height: vRow.size,
             data: flatItem.rowData,
@@ -358,9 +361,12 @@ export const GroupedVirtualView = forwardRef<
             {interleavedDisplayItems.map((item) => {
               // Regular row
               if (item.type === "row") {
+                if (item.group.rows.Component === null) {
+                  return null;
+                }
                 return (
                   <div
-                    key={item.id}
+                    key={item.group.rows.getKey(item.data)}
                     className="absolute top-0 left-0 w-full"
                     style={{
                       transform: `translateY(${item.start}px)`,
@@ -371,7 +377,7 @@ export const GroupedVirtualView = forwardRef<
                     {/* <div className="py-2">{JSON.stringify(item.data)}</div> */}
 
                     <item.group.rows.Component
-                      {...item.group.rows.getProps(item.data)}
+                      {...item.group.rows.getProps(item.data, rowVirtualizer)}
                     />
                   </div>
                 );
@@ -381,7 +387,7 @@ export const GroupedVirtualView = forwardRef<
               if (item.type === "sticky-header") {
                 return (
                   <div
-                    key={item.id}
+                    key={item.key}
                     className="absolute left-0 w-full pointer-events-none select-none"
                     style={{
                       top: item.start,
@@ -401,7 +407,7 @@ export const GroupedVirtualView = forwardRef<
               // Non-sticky header
               return (
                 <div
-                  key={item.id}
+                  key={item.key}
                   className="absolute top-0 left-0 w-full"
                   style={{
                     transform: `translateY(${item.start}px)`,

@@ -138,16 +138,18 @@ export const CategoryContent = ({
         Component: CategoriesHeader,
         label: { value: "Albums", isPrimary: true },
         props: headerProps,
+        key: "albumsHeader",
         sticky: true,
       },
       rows: {
         data: categoryGridData.rows,
+        getKey: (rowItemWithIndex) => `albms-${rowItemWithIndex.index}`,
         getTooltip: () => "Albums",
         getRowHeight: (rowData) => {
           return rowData.height;
         },
-        getProps: (rowItem) => {
-          const row = categoryGridData.rows[rowItem.index];
+        getProps: (rowItemWithIndex) => {
+          const row = categoryGridData.rows[rowItemWithIndex.index];
 
           return {
             row,
@@ -175,9 +177,6 @@ export const CategoryContent = ({
    *
    * @todo - make the grouping better. Sometimes day or year is better,
    *         sometimes it'd be better to search for clusters in a day.
-   *
-   * @todo - There's a bug with this fully rerendering when things change,
-   *         like the subcategories when the window resizes.
    */
   const imagesViewGroups = useMemo(() => {
     if (images == null) {
@@ -209,9 +208,18 @@ export const CategoryContent = ({
         // rows: group.images,
         rows: {
           data: group.rows,
+          getKey: (rowWithIndex) => rowWithIndex.data.key,
           getTooltip: ({ group }) => group.header.label.value,
-          getProps: (rowWithIndex: RowWithIndex<ImageLayoutRow>) => {
-            return { row: rowWithIndex.data, categoryId: category.id };
+          getProps: (
+            rowWithIndex: RowWithIndex<ImageLayoutRow>,
+            rowVirtualizer,
+          ) => {
+            return {
+              isScrolling: rowVirtualizer.isScrolling,
+              categoryId: category.id,
+              row: rowWithIndex.data,
+              theKey: rowWithIndex.data.height.toString(),
+            };
           },
           getRowHeight: (imageLayout: ImageLayoutRow) =>
             imageLayout.height + imageLayout.boxSpacing,
@@ -219,6 +227,7 @@ export const CategoryContent = ({
         },
         header: {
           height: PHOTO_GROUP_HEADER_HEIGHT,
+          key: group.header,
           Component: PhotoGroupHeader,
           props: { label: group.header },
           label: { value: group.header, isPrimary: group.isNewYear },
@@ -243,8 +252,9 @@ export const CategoryContent = ({
       ...[categoriesViewGroup as VirtualViewGroupConfig | null].filter(
         (g) => g !== null,
       ),
+      horizontalRuleGroup("hr1"),
       ...(imagesViewGroups as VirtualViewGroupConfig[]),
-      horizontalRuleGroup,
+      horizontalRuleGroup("hr2"),
     ],
     [categoriesViewGroup, imagesViewGroups],
   );
