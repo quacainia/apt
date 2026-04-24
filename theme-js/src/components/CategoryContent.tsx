@@ -254,7 +254,7 @@ export const CategoryContent = ({
       ),
       horizontalRuleGroup("hr1"),
       ...(imagesViewGroups as VirtualViewGroupConfig[]),
-      horizontalRuleGroup("hr2"),
+      ...(imagesViewGroups.length > 0 ? [horizontalRuleGroup("hr2")] : []),
     ],
     [categoriesViewGroup, imagesViewGroups],
   );

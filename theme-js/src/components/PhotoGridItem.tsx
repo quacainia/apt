@@ -78,8 +78,9 @@ export default function PhotoGridItem({
   const skeleton = (
     <div className="absolute z-0 h-full w-full bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
   );
+
   let containerContent: ReactNode;
-  if (error ?? imageError) {
+  if (error || imageError) {
     containerContent = (
       <ImageError size={(height ?? 200) / 2} error={error ?? imageError!} />
     );
