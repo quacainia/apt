@@ -81,7 +81,7 @@ export function useCategoriesImages(
 
 // Image Hooks
 export function useImageInfo(imageId: number) {
-  return useQuery({
+  return useQuery<Types.ImagesGetInfoResponse, AxiosError>({
     queryKey: QUERY_KEYS.imageInfo(imageId),
     queryFn: () => piwigoAPI.getImageInfo(imageId),
     staleTime: 10 * 60 * 1000, // 10 minutes

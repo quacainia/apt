@@ -4,43 +4,40 @@ import type { PiwigoRoute } from "../utils/routes";
 import PhotoGridItem from "./PhotoGridItem";
 
 interface PhotoGridItemByIdProps {
+  height?: number;
+  hideOverlay?: boolean;
   imageId: number;
   isScrolling: boolean;
   isSelected?: boolean;
-  to?: PiwigoRoute;
   size?: keyof ImageDerivatives;
-  hideOverlay?: boolean;
+  to?: PiwigoRoute;
 }
 
 export default function PhotoGridItemById({
+  height,
+  hideOverlay,
   imageId,
   isScrolling,
   isSelected,
-  to,
   size,
-  hideOverlay,
+  to,
 }: PhotoGridItemByIdProps) {
   const { data: imageData, isLoading, error } = useImageInfo(imageId);
 
   const image: Image | null =
     imageData?.stat === "ok" && imageData.result ? imageData.result : null;
 
-  if (error) {
-    // @todo: BEN FIX IT
-    return "Error!";
-  }
-
-  if (image === null || isLoading) {
-    return <div className="size-full animate-pulse bg-white"></div>;
-  }
   return (
     <PhotoGridItem
       isScrolling={isScrolling}
       image={image}
+      error={error}
+      isLoading={image ? false : isLoading}
       isSelected={isSelected}
       to={to}
       size={size}
       hideOverlay={hideOverlay}
+      height={height}
     />
   );
 }
