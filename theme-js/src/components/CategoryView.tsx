@@ -48,15 +48,14 @@ export default function CategoryView({
     return <LoadingSpinner />;
   }
 
+  if (!category) {
+    return <StandardErrorMessage error={404} />;
+  }
+
   return (
     <div className="relative w-full flex-grow overflow-hidden">
       <div className="size-full mx-auto flex flex-col overflow-hidden items-center">
-        {category ? (
-          <CategoryContent category={category} subCategories={subCategories} />
-        ) : (
-          // @todo: this _shouldn't_ happen, but it would be good to make sure it won't
-          <div>Error finding category.</div>
-        )}
+        <CategoryContent category={category} subCategories={subCategories} />
       </div>
     </div>
   );
