@@ -19,7 +19,7 @@ export const useRouter = create<RouterStore>((set) => ({
 
   _initializeFromUrl: () => {
     const parsed = hrefToRoute(window.location.href);
-    set({ route: parsed || { type: "home" } });
+    set({ route: parsed || { type: "error" } });
   },
 }));
 

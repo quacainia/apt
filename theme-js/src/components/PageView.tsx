@@ -2,6 +2,7 @@ import type { PiwigoRoute } from "../utils/routes";
 import CategoryView from "./CategoryView";
 import PhotoView from "./PhotoView";
 import { RootAlbumView } from "./RootAlbumView";
+import { StandardErrorMessage } from "./StandardErrorMessage";
 
 export const PageView = ({ route }: { route: PiwigoRoute }) => {
   if (route.type === "category") {
@@ -11,6 +12,5 @@ export const PageView = ({ route }: { route: PiwigoRoute }) => {
   } else if (route.type === "picture") {
     return <PhotoView photoId={route.id} categoryId={route.category} />;
   }
-  // @todo 404
-  return "Not found";
+  return <StandardErrorMessage error={404} />;
 };
