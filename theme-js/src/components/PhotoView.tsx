@@ -1,10 +1,8 @@
 import { AxiosError } from "axios";
 import { ChevronLeft, ChevronRight, Info, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import urlJoin from "url-join";
-import { useCategoriesList } from "../api/hooks";
 import { BASE_URL } from "../api/piwigo";
-import type { Category } from "../api/types";
 import { usePhoto } from "../hooks/use-photo";
 import { cn } from "../utils/cn";
 import { CategoryBreadcrumbs } from "./CategoryBreadcrumbs";
@@ -24,16 +22,6 @@ export default function PhotoView({ photoId, categoryId }: PhotoViewProps) {
     useState<boolean>(false);
   const overlayTimeoutRef = useRef<number | null>(null);
 
-  const categoryIdNum = !categoryId
-    ? undefined
-    : typeof categoryId === "string"
-      ? parseInt(categoryId)
-      : categoryId;
-
-  const { data: categoryData } = useCategoriesList({
-    cat_id: categoryIdNum ? categoryIdNum : undefined,
-    limit: 1,
-  });
   const image = usePhoto(photoId.toString(), categoryId.toString());
   const showOverlay = _showOverlay || !image;
 
@@ -42,14 +30,6 @@ export default function PhotoView({ photoId, categoryId }: PhotoViewProps) {
   if (image?.info.id === "") {
     imageError = new AxiosError("arf");
   }
-
-  const category: Category | null = useMemo(() => {
-    return categoryData?.stat === "ok" &&
-      categoryData.result &&
-      categoryData.result.categories.length
-      ? categoryData.result.categories[0]!
-      : null;
-  }, [categoryData]);
 
   const handleClose = () => {
     setShowInfo(false);
@@ -110,7 +90,10 @@ export default function PhotoView({ photoId, categoryId }: PhotoViewProps) {
     <div className="w-full h-full flex flex-col overflow-hidden relative">
       {/* Header with close button */}
       <div className="w-full flex flex-col items-center">
-        <CategoryBreadcrumbs category={category} finalIsClickable />
+        <CategoryBreadcrumbs
+          breadcrumbs={image?.breadcrumbs ?? []}
+          finalIsClickable
+        />
       </div>
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden lg:overflow-y-hidden flex flex-col lg:flex-row">

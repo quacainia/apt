@@ -3,6 +3,8 @@ import { BASE_URL } from "../api/piwigo";
 import { useEntityStore } from "../store/entities";
 import { parseDocDataFromString } from "../utils/parse-doc-data";
 
+export type Breadcrumb = { title: string; url: string };
+
 export type PhotoPhpImage = {
   id: string;
   info: {
@@ -148,6 +150,7 @@ export type PhotoPhpImage = {
     URL: string;
     U_TAG_IMAGE: string;
   }[];
+  breadcrumbs: Breadcrumb[];
 };
 
 export function usePhoto(
@@ -159,7 +162,6 @@ export function usePhoto(
   const hydrateFromDOM = useEntityStore((state) => state.hydrateFromDOM);
 
   const photo = photoId ? photos[photoId] : undefined;
-  
 
   useEffect(() => {
     // 1. Check the DOM first if the store is totally empty
@@ -172,7 +174,7 @@ export function usePhoto(
       const fetchPhoto = async () => {
         try {
           const response = await fetch(
-            BASE_URL+`/picture.php?/${photoId}/category/${categoryId}`,
+            BASE_URL + `/picture.php?/${photoId}/category/${categoryId}`,
             {
               method: "GET",
               headers: {
